@@ -78,18 +78,30 @@ progress.oninput = () => {
 const puzzle = document.getElementById('puzzle');
 const size = 3;
 let pieces = [];
-let draggingPiece = null;
-let offsetX = 0;
-let offsetY = 0;
 
-function createPositions() {
-  let pos = [];
+function createPuzzle() {
+  const positions = [];
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
-      pos.push({ row, col });
+      positions.push({ row, col });
     }
   }
-  return pos;
+  const shuffled = shuffle([...positions]);
+  puzzle.innerHTML = '';
+  pieces = [];
+
+  shuffled.forEach((pos, index) => {
+    const piece = document.createElement('div');
+    piece.classList.add('puzzle-piece');
+    piece.style.backgroundImage = 'url("img/photo_2025-06-02_01-52-05.jpg")';
+    piece.style.backgroundPosition = `${-pos.col * 100 / (size - 1)}% ${-pos.row * 100 / (size - 1)}%`;
+    piece.style.gridRowStart = Math.floor(index / size) + 1;
+    piece.style.gridColumnStart = index % size + 1;
+    piece.dataset.correctRow = pos.row;
+    piece.dataset.correctCol = pos.col;
+    pieces.push(piece);
+    puzzle.appendChild(piece);
+  });
 }
 
 function shuffle(array) {
@@ -100,128 +112,92 @@ function shuffle(array) {
   return array;
 }
 
-function createPuzzle() {
-  const positions = createPositions();
-  const shuffled = shuffle([...positions]);
+let draggingPiece = null;
+let startX, startY;
 
-  puzzle.innerHTML = '';
-  pieces = [];
+puzzle.addEventListener('mousedown', startDrag);
+puzzle.addEventListener('touchstart', startDrag, { passive: false });
 
-  shuffled.forEach((pos, index) => {
-    const piece = document.createElement('div');
-    piece.classList.add('puzzle-piece');
-    piece.style.backgroundImage = 'url("img/photo_2025-06-02_01-52-05.jpg")';
-    piece.style.backgroundPosition = `${-pos.col * 100 / (size - 1)}% ${-pos.row * 100 / (size - 1)}%`;
-    piece.dataset.correctRow = pos.row;
-    piece.dataset.correctCol = pos.col;
-    piece.dataset.currentIndex = index;
+function startDrag(e) {
+  if (!e.target.classList.contains('puzzle-piece')) return;
 
-    puzzle.appendChild(piece);
-    pieces.push(piece);
-  });
+  draggingPiece = e.target;
+  draggingPiece.classList.add('dragging');
+
+  const rect = draggingPiece.getBoundingClientRect();
+  startX = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  startY = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+
+  document.addEventListener('mousemove', onDrag);
+  document.addEventListener('touchmove', onDrag, { passive: false });
+  document.addEventListener('mouseup', endDrag);
+  document.addEventListener('touchend', endDrag);
+}
+
+function onDrag(e) {
+  if (!draggingPiece) return;
+
+  e.preventDefault();
+  let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  let clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+  draggingPiece.style.position = 'absolute';
+  draggingPiece.style.zIndex = 1000;
+  draggingPiece.style.left = clientX - startX + 'px';
+  draggingPiece.style.top = clientY - startY + 'px';
+}
+
+function endDrag(e) {
+  if (!draggingPiece) return;
+
+  // Найдем, над каким кусочком отпустили
+  draggingPiece.style.display = 'none';
+  const dropTarget = document.elementFromPoint(
+    e.changedTouches ? e.changedTouches[0].clientX : e.clientX,
+    e.changedTouches ? e.changedTouches[0].clientY : e.clientY
+  );
+  draggingPiece.style.display = '';
+
+  if (dropTarget && dropTarget.classList.contains('puzzle-piece') && dropTarget !== draggingPiece) {
+    // Обменять gridRow и gridColumn
+    const row1 = draggingPiece.style.gridRowStart;
+    const col1 = draggingPiece.style.gridColumnStart;
+    const row2 = dropTarget.style.gridRowStart;
+    const col2 = dropTarget.style.gridColumnStart;
+
+    draggingPiece.style.gridRowStart = row2;
+    draggingPiece.style.gridColumnStart = col2;
+    dropTarget.style.gridRowStart = row1;
+    dropTarget.style.gridColumnStart = col1;
+  }
+
+  // Сброс позиции
+  draggingPiece.style.position = '';
+  draggingPiece.style.left = '';
+  draggingPiece.style.top = '';
+  draggingPiece.style.zIndex = '';
+  draggingPiece.classList.remove('dragging');
+  draggingPiece = null;
+
+  document.removeEventListener('mousemove', onDrag);
+  document.removeEventListener('touchmove', onDrag);
+  document.removeEventListener('mouseup', endDrag);
+  document.removeEventListener('touchend', endDrag);
+
+  checkWin();
+}
+
+function checkWin() {
+  for (let piece of pieces) {
+    const currentIndex = (piece.style.gridRowStart - 1) * size + (+piece.style.gridColumnStart - 1);
+    const correctIndex = piece.dataset.correctRow * size + +piece.dataset.correctCol;
+    if (currentIndex !== correctIndex) return;
+  }
+  alert('Поздравляю! Ты собрала пазл 🎉');
 }
 
 createPuzzle();
 
-// Drag & Drop и Touch
-
-function onDragStart(e) {
-  if (e.target.classList.contains('puzzle-piece')) {
-    draggingPiece = e.target;
-    draggingPiece.classList.add('dragging');
-
-    const rect = draggingPiece.getBoundingClientRect();
-    if (e.type.startsWith('touch')) {
-      offsetX = e.touches[0].clientX - rect.left;
-      offsetY = e.touches[0].clientY - rect.top;
-    } else {
-      offsetX = e.clientX - rect.left;
-      offsetY = e.clientY - rect.top;
-    }
-
-    draggingPiece.style.position = 'absolute';
-    draggingPiece.style.zIndex = 1000;
-    moveAt(e);
-  }
-  e.preventDefault();
-}
-
-function moveAt(e) {
-  let clientX, clientY;
-  if (e.type.startsWith('touch')) {
-    clientX = e.touches[0].clientX;
-    clientY = e.touches[0].clientY;
-  } else {
-    clientX = e.clientX;
-    clientY = e.clientY;
-  }
-
-  draggingPiece.style.left = clientX - offsetX + 'px';
-  draggingPiece.style.top = clientY - offsetY + 'px';
-}
-
-function onDragMove(e) {
-  if (!draggingPiece) return;
-  moveAt(e);
-  e.preventDefault();
-}
-
-function onDragEnd(e) {
-  if (!draggingPiece) return;
-
-  // Найдем элемент под указателем
-  draggingPiece.style.display = 'none';
-  let elemBelow = document.elementFromPoint(
-    e.type.startsWith('touch') ? e.changedTouches[0].clientX : e.clientX,
-    e.type.startsWith('touch') ? e.changedTouches[0].clientY : e.clientY
-  );
-  draggingPiece.style.display = '';
-
-  if (!elemBelow) {
-    resetPiece();
-    return;
-  }
-
-  // Если под указателем другая часть пазла — меняем их местами
-  if (elemBelow.classList.contains('puzzle-piece') && elemBelow !== draggingPiece) {
-    const index1 = pieces.indexOf(draggingPiece);
-    const index2 = pieces.indexOf(elemBelow);
-
-    puzzle.insertBefore(draggingPiece, pieces[index2]);
-    puzzle.insertBefore(elemBelow, pieces[index1]);
-
-    pieces[index1] = elemBelow;
-    pieces[index2] = draggingPiece;
-  } else {
-    resetPiece();
-  }
-
-  draggingPiece.classList.remove('dragging');
-  draggingPiece.style.position = '';
-  draggingPiece.style.left = '';
-  draggingPiece.style.top = '';
-  draggingPiece.style.zIndex = '';
-
-  draggingPiece = null;
-
-  checkWin();
-  e.preventDefault();
-}
-
-function resetPiece() {
-  draggingPiece.style.position = '';
-  draggingPiece.style.left = '';
-  draggingPiece.style.top = '';
-  draggingPiece.style.zIndex = '';
-}
-
-function checkWin() {
-  for (let i = 0; i < pieces.length; i++) {
-    const correctIndex = pieces[i].dataset.correctRow * size + +pieces[i].dataset.correctCol;
-    if (i !== correctIndex) return;
-  }
-  alert('Поздравляю! Ты собрала пазл 🎉');
-}
 
 // Подписка на события
 
