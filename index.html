@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>С Днем Рождения, Моя Бусинька!</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<link rel="stylesheet" href="map/map.css" />
+<link rel="stylesheet" href="style.css" />  <!-- твои основные стили — ПОСЛЕ -->
+
+</head>
+<body>
+
+  <h1>С Днем Рождения, Моя Бусинька!</h1>
+  <p>Ты — мое вдохновение, моя радость и моя любовь. Этот сайт я сделал только для тебя. Спасибо, что ты есть в моей жизни!</p>
+
+  <!-- Галерея фотографий -->
+  <div class="gallery">
+    <img src="img/photo_2025-06-02_01-07-12.jpg" alt="Фото 1" />
+    <img src="img/photo_2025-06-02_01-07-26.jpg" alt="Фото 2" />
+    <img src="img/photo_2025-06-02_01-07-33.jpg" alt="Фото 3" />
+  </div>
+
+  <!-- Музыка -->
+  <div class="music-player">
+    <button id="playPause" class="play">▶️</button>
+    <input type="range" id="progress" value="0" max="100" step="1" />
+    <span id="currentTime">0:00</span> / <span id="duration">3:41</span>
+    <audio id="audio" src="music/Звонкий_&_Рем_Дигга_Из_Окон_Lyric.mp3"></audio>
+  </div>
+
+  <section class="quote-section">
+    <h2>Ты — мой космос 🌌</h2>
+    <p>Ты делаешь каждый мой день особенным, и я хочу, чтобы ты знала, как сильно я тебя люблю. Спасибо за каждый миг вместе!</p>
+  </section>
+
+  <!-- Кнопка вызова -->
+  <div id="reasonsBox" class="reasons-box">
+    100 причин, почему я тебя люблю ❤️
+  </div>
+
+  <!-- Модальное окно -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span id="closeModal" class="close">&times;</span>
+      <h2>100 причин, почему я тебя люблю</h2>
+      <ul id="reasonsList" class="reasons-list"></ul>
+    </div>
+  </div>
+
+  <!-- Пазл -->
+  <h2>Собери пазл из нашей фотографии!</h2>
+  <div id="puzzle" class="puzzle"></div>
+
+    <h1>Наши мечты о путешествиях ✈️🌍</h1>
+
+  <canvas id="confetti"></canvas>
+
+
+<section class="dream-travel">
+  <div class="cities-container">
+    <div class="city-card">
+      <img src="img/mekka.jpg" alt="Мекка" />
+      <h3>Мекка</h3>
+      <p>Мы обязательно побываем здесь вместе, когда придёт время 🕋.</p>
+    </div>
+    <div class="city-card">
+      <img src="img/newyork.jpg" alt="Нью-Йорк" />
+      <h3>Нью-Йорк</h3>
+      <p>Огни Манхэттена ждут нас, любовь моя! 🗽</p>
+    </div>
+    <div class="city-card">
+      <img src="img/turkey.jpg" alt="Турция" />
+      <h3>Турция</h3>
+      <p>Тёплый песок, шум моря, ты и я...</p>
+    </div>
+    <div class="city-card">
+      <img src="img/maldives.jpg" alt="Мальдивы" />
+      <h3>Мальдивы</h3>
+      <p>Пусть светящийся океан осветит наши мечты ✨.</p>
+    </div>
+    <div class="city-card">
+      <img src="img/paris.jpg" alt="Париж" />
+      <h3>Париж</h3>
+      <p>Романтика, Эйфелева башня и только ты ❤️.</p>
+    </div>
+    <div class="city-card">
+      <img src="img/barcelona.jpg" alt="Барселона" />
+      <h3>Барселона</h3>
+      <p>Твои глаза красивее собора Саграда Фамилия...</p>
+    </div>
+  </div>
+</section>
+
+<section id="mapSection">
+  <h2>🌍 Наши мечты вместе</h2>
+  <div id="map"></div>
+</section>
+
+<section id="feedback" style="max-width:400px; margin: 50px auto; padding: 20px; background: #ffe6f0; border-radius: 15px; box-shadow: 0 0 15px rgba(255,77,109,0.3);">
+  <h2 style="color:#ff4d6d; text-align:center;">Напиши мне ❤️</h2>
+  <form id="feedbackForm">
+    <textarea id="message" rows="4" placeholder="Твое сообщение..." required style="width:100%; padding:10px; border-radius:10px; border: 1px solid #ff4d6d; font-size: 1rem;"></textarea>
+    <button type="submit" style="margin-top:10px; width: 100%; padding: 12px; background: #ff4d6d; color: white; border: none; border-radius: 30px; font-size: 1.1rem; cursor: pointer;">Отправить</button>
+  </form>
+  <p id="thankYou" style="text-align:center; color:#ff4d6d; font-style: italic; margin-top: 15px; display:none;">Спасибо, я прочитаю с любовью! 💌</p>
+</section>
+
+<canvas id="heartsCanvas"></canvas>
+
+  <script src="hearts.js"></script>
+  <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/paulmasson/threejs-with-controls@r121/build/three.min.js"></script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="map/script.js"></script>
+
+<footer style="text-align:center; margin: 40px 0; color:#ff4d6d; font-style: italic;">
+  Сделано с любовью ❤️ для самой дорогой мне Бусинки.<br>
+  Пусть наши мечты сбываются вместе!
+</footer>
+
+</body>
+</html>
