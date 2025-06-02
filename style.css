@@ -154,41 +154,23 @@ p {
 
 /* Пазл */
 
-.puzzle {
-  width: 90vw;
-  max-width: 450px;
-  aspect-ratio: 1 / 1;
-  margin: 20px auto 50px;
+
+#puzzle {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  gap: 4px;
-  border: 2px solid #ff4d6d;
-  user-select: none;
-  touch-action: none;
-  border-radius: 15px;
-  background: white;
-  box-shadow: 0 0 15px rgba(255,77,109,0.3);
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+  gap: 2px;
+  width: 302px;
+  height: 302px;
+  position: relative;
 }
 
 .puzzle-piece {
-  background-image: url('img/photo_2025-06-02_01-07-12.jpg');
-  background-size: 300% 300%; /* 3x3 */
-  border-radius: 10px;
-  box-shadow: 0 0 5px rgba(255,77,109,0.5);
-  touch-action: none;
-  user-select: none;
+  width: 100px;
+  height: 100px;
+  background-size: 300% 300%;
   cursor: grab;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  transition: box-shadow 0.3s ease;
-}
-.puzzle-piece.dragging {
-  opacity: 0.6;
-  cursor: grabbing;
-  box-shadow: 0 0 15px #ff2a53;
+  transition: transform 0.2s;
 }
 
 /* Кнопка "Я тебя люблю" */
